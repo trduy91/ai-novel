@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "publisher/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "../helper.js"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "publisher/server.js"
+    }
+  ]
+}
