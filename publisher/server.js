@@ -1,4 +1,4 @@
-// publisher/server.js (PHIÊN BẢN HYBRID)
+// publisher/server.js (Đã cập nhật với logic Hybrid)
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
@@ -10,12 +10,31 @@ const port = 3000;
 
 // --- CẤU HÌNH ---
 const { BOOKS_DIR, slugify } = require("../helper.js");
-const serviceAccountString = Buffer.from(
-  process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
-  "base64"
-).toString("utf-8");
-const serviceAccount = JSON.parse(serviceAccountString);
-// const serviceAccount = require('./serviceAccountKey.json');
+
+// --- LOGIC HYBRID ĐỌC CẤU HÌNH FIREBASE ---
+let serviceAccount;
+// ƯU TIÊN 1: Biến môi trường trên Vercel
+if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+  console.log("Publisher: Found Firebase config in environment variables.");
+  const serviceAccountString = Buffer.from(
+    process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
+    "base64"
+  ).toString("utf-8");
+  serviceAccount = JSON.parse(serviceAccountString);
+}
+// ƯU TIÊN 2: File .json ở local
+else {
+  try {
+    console.log(
+      "Publisher: Found Firebase config in local serviceAccountKey.json file."
+    );
+    serviceAccount = require("./serviceAccountKey.json");
+  } catch (error) {
+    throw new Error(
+      "FATAL ERROR: Firebase config not found. Publisher cannot start."
+    );
+  }
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -155,8 +174,12 @@ app.get("/book/:slug/:chapterFile", async (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(
-    `📚 Publisher (Hybrid Mode) đang chạy tại http://localhost:${port}`
-  );
-});
+// Chạy server ở local, Vercel sẽ bỏ qua phần này
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(`📚 Publisher đang chạy tại http://localhost:${port}`);
+  });
+}
+
+// Xuất app để Vercel có thể sử dụng
+module.exports = app;

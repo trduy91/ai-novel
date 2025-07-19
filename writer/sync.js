@@ -3,16 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const admin = require("firebase-admin");
 const { BOOKS_DIR, slugify } = require("../helper.js"); // Dùng helper chung
+const { FIREBASE_SERVICE_ACCOUNT } = require('./config.js');
 
-// Khởi tạo Firebase Admin
-const serviceAccountString = Buffer.from(
-  process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
-  "base64"
-).toString("utf-8");
-const serviceAccount = JSON.parse(serviceAccountString);
-// const serviceAccount = require('./serviceAccountKey.json');
+if (!FIREBASE_SERVICE_ACCOUNT) {
+  console.log("Dừng quá trình đồng bộ do thiếu cấu hình Firebase.");
+  process.exit(1);
+}
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(FIREBASE_SERVICE_ACCOUNT)
 });
 const db = admin.firestore();
 console.log("Firebase Admin initialized.");

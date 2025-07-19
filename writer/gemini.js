@@ -1,8 +1,9 @@
 // gemini.js
 // require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GEMINI_API_KEY } = require('./config.js');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // Cấu hình model để đảm bảo output là text
 const model = genAI.getGenerativeModel({
