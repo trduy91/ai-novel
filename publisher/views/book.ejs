@@ -1,0 +1,21 @@
+<%- include('partials/header', { title: book.title }) %>
+
+<nav class="breadcrumb">
+    <a href="/">Trang chủ</a> » <%= book.title %>
+</nav>
+
+<h2><%= book.title %></h2>
+<p class="book-genre-detail">Thể loại: <%= book.genre %></p>
+
+<h3>Danh sách chương</h3>
+<ol class="chapter-list">
+    <% chapters.forEach(chapter => { %>
+        <li>
+            <a href="/book/<%= book.slug %>/<%= chapter.fileName %>">
+                <%= chapter.title %>
+            </a>
+        </li>
+    <% }) %>
+</ol>
+
+<%- include('partials/footer') %>

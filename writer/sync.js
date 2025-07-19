@@ -1,0 +1,71 @@
+// writer/sync.js
+const fs = require('fs');
+const path = require('path');
+const admin = require('firebase-admin');
+const { BOOKS_DIR, slugify } = require('../helper.js'); // Dùng helper chung
+
+// Khởi tạo Firebase Admin
+const serviceAccount = require('./serviceAccountKey.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+const db = admin.firestore();
+console.log('Firebase Admin initialized.');
+
+async function syncBooksToFirebase() {
+  console.log('Starting sync process...');
+  if (!fs.existsSync(BOOKS_DIR)) {
+    console.log('Books directory not found. Nothing to sync.');
+    return;
+  }
+
+  const bookSlugs = fs.readdirSync(BOOKS_DIR, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+
+  for (const slug of bookSlugs) {
+    const bookDir = path.join(BOOKS_DIR, slug);
+    const outlinePath = path.join(bookDir, 'outline.json');
+
+    if (!fs.existsSync(outlinePath)) continue;
+
+    const outline = JSON.parse(fs.readFileSync(outlinePath, 'utf-8'));
+    const bookRef = db.collection('books').doc(slug);
+
+    // Sync thông tin cơ bản của sách
+    console.log(`Syncing book: ${outline.title}...`);
+    await bookRef.set({
+      title: outline.title,
+      genre: outline.genre,
+      slug: slug,
+    }, { merge: true }); // Dùng merge để không ghi đè dữ liệu không liên quan
+
+    // Sync từng chương
+    for (const chapterInfo of outline.chapters) {
+      const chapterFileName = `${String(chapterInfo.chapter).padStart(2, '0')}-${slugify(chapterInfo.title)}.md`;
+      const chapterPath = path.join(bookDir, chapterFileName);
+
+      if (fs.existsSync(chapterPath)) {
+        const content = fs.readFileSync(chapterPath, 'utf-8');
+        const chapterId = String(chapterInfo.chapter).padStart(2, '0');
+        const chapterRef = bookRef.collection('chapters').doc(chapterId);
+        
+        console.log(`  -> Syncing chapter ${chapterId}: ${chapterInfo.title}`);
+        await chapterRef.set({
+          title: chapterInfo.title,
+          chapterNumber: chapterInfo.chapter,
+          content: content // Lưu toàn bộ nội dung Markdown
+        });
+      }
+    }
+  }
+  console.log('Sync process completed successfully!');
+}
+
+syncBooksToFirebase().then(() => {
+  // Đợi một chút để đảm bảo tất cả các hoạt động ghi hoàn tất
+  setTimeout(() => process.exit(0), 2000);
+}).catch(error => {
+  console.error('An error occurred during sync:', error);
+  process.exit(1);
+});

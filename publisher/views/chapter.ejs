@@ -1,0 +1,57 @@
+<% const pageTitle = chapterTitle + ' | ' + book.title; %>
+
+<%- include('partials/header', { title: pageTitle }) %>
+
+<nav class="breadcrumb">
+    <a href="/">Trang chủ</a> » <a href="/book/<%= book.slug %>"><%= book.title %></a> » <%= chapterTitle %>
+</nav>
+
+<article class="chapter-content">
+    <h2><%= chapterTitle %></h2>
+    <hr>
+    
+    <%- content %>
+</article>
+
+<div class="chapter-navigation">
+  <% if (prevChapterLink) { %>
+      <a href="<%= prevChapterLink %>" class="nav-button prev">
+          ← Chương trước
+      </a>
+  <% } else { %>
+      <span class="nav-button disabled">← Chương trước</span>
+  <% } %>
+
+  <% if (nextChapterLink) { %>
+      <a href="<%= nextChapterLink %>" class="nav-button next">
+          Chương sau →
+      </a>
+  <% } else { %>
+      <span class="nav-button disabled">Chương sau →</span>
+  <% } %>
+</div>
+
+<% if (source) { %>
+    <p style="text-align: right; font-size: 0.8em; color: #aaa; font-style: italic;">(Nguồn: <%= source %>)</p>
+<% } %>
+
+<%- include('partials/footer') %>
+
+<script>
+  // Truyền biến từ EJS sang JavaScript
+  const prevLink = "<%= prevChapterLink %>";
+  const nextLink = "<%= nextChapterLink %>";
+
+  document.addEventListener('keydown', function(event) {
+      // Chuyển sang chương trước bằng phím mũi tên trái
+      // Kiểm tra `prevLink !== 'null'` vì khi EJS render biến null, nó có thể thành chuỗi "null"
+      if (event.key === 'ArrowLeft' && prevLink && prevLink !== 'null') {
+          window.location.href = prevLink;
+      }
+
+      // Chuyển sang chương sau bằng phím mũi tên phải
+      if (event.key === 'ArrowRight' && nextLink && nextLink !== 'null') {
+          window.location.href = nextLink;
+      }
+  });
+</script>

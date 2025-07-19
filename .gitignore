@@ -1,0 +1,10 @@
+node_modules
+.env
+/writer/.env
+/writer/node_modules
+/publisher/.env
+/publisher/node_modules
+/books
+serviceAccountKey.json
+/writer/serviceAccountKey.json
+/publisher/serviceAccountKey.json

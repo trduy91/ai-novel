@@ -1,0 +1,23 @@
+<%- include('partials/header', { title: 'Tất cả truyện' }) %>
+
+  <h2>Danh sách truyện</h2>
+  <ul class="book-list">
+    <% if (books.length> 0) { %>
+      <% books.forEach(book=> { %>
+        <li>
+          <a href="/book/<%= book.slug %>">
+            <span class="book-title">
+              <%= book.title %>
+            </span>
+            <span class="book-genre">
+              <%= book.genre %>
+            </span>
+          </a>
+        </li>
+        <% }) %>
+          <% } else { %>
+            <p>Chưa có cuốn sách nào được viết. Hãy chạy "Writer" để bắt đầu!</p>
+            <% } %>
+  </ul>
+
+  <%- include('partials/footer') %>
