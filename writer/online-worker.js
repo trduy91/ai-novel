@@ -7,7 +7,6 @@ const { FIREBASE_SERVICE_ACCOUNT, CHECK_INTERVAL_MINUTES } = require("./config.j
 const { generateText } = require("./gemini.js");
 const { claimChapterTask } = require("./firestore-state.js");
 const prompts = require("./prompts.js");
-const { cleanChapterContent } = require("../helper.js"); // Thêm hàm dọn dẹp
 
 // --- PHẦN 2: KHỞI TẠO CÁC DỊCH VỤ & HẰNG SỐ ---
 
@@ -120,8 +119,7 @@ async function startOnlineWorker() {
         chapterInfo.summary,
         previousChapterSummary
       );
-      const rawContent = await generateText(chapterPrompt);
-      const chapterContent = cleanChapterContent(rawContent); // Dọn dẹp output
+      const chapterContent = await generateText(chapterPrompt);
 
       // Lưu kết quả thẳng vào Firestore
       const chapterId = String(chapterInfo.chapter).padStart(2, "0");
