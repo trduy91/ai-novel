@@ -5,34 +5,21 @@ FROM node:18-slim
 WORKDIR /project
 
 # --- SAO CHÉP CÁC THÀNH PHẦN CỦA DỰ ÁN VÀO CONTAINER ---
-# Bây giờ, bối cảnh build là thư mục gốc của dự án, nên các đường dẫn nguồn sẽ khác đi.
+# Bối cảnh build là thư mục gốc của dự án.
 
-# 1. Sao chép file helper.js dùng chung vào thư mục gốc của container
-# Nguồn: ./helper.js (từ thư mục gốc của dự án)
-# Đích: ./helper.js (bên trong /project)
-COPY ./helper.js .
+# 1. Sao chép các file/thư mục cần thiết từ gốc dự án vào gốc container
+# Sao chép file helper.js dùng chung
+COPY helper.js .
+# Sao chép toàn bộ thư mục 'writer'
+COPY writer/ ./writer/
 
-# 2. Sao chép các file package của writer
-# Nguồn: ./writer/package*.json (từ thư mục gốc của dự án)
-# Đích: ./writer/ (bên trong /project)
-COPY ./writer/package*.json ./writer/
-
-# 3. Di chuyển vào thư mục writer để cài đặt dependencies
+# 2. Di chuyển vào thư mục writer bên trong container để thực hiện các lệnh tiếp theo
 WORKDIR /project/writer
+
+# 3. Cài đặt các dependencies của writer
+# npm sẽ đọc file package.json trong thư mục làm việc hiện tại (/project/writer)
 RUN npm install
 
-# 4. Quay trở lại thư mục gốc của container
-WORKDIR /project
-
-# 5. Sao chép toàn bộ mã nguồn của thư mục writer
-# Nguồn: ./writer/. (tất cả file trong thư mục writer)
-# Đích: ./writer/ (bên trong /project)
-COPY ./writer/. ./writer/
-
-# 6. Thiết lập lại thư mục làm việc để chạy lệnh CMD
-WORKDIR /project/writer
-
-# 7. Lệnh mặc định sẽ được chạy khi container khởi động
-# Bây giờ, khi online-worker.js chạy từ /project/writer,
-# lệnh require('../helper.js') sẽ tìm thấy file ở /project/helper.js một cách chính xác.
+# 4. Lệnh mặc định sẽ được chạy khi container khởi động
+# Lệnh này sẽ được thực thi từ thư mục làm việc hiện tại (/project/writer)
 CMD ["npm", "run", "start:online"]
