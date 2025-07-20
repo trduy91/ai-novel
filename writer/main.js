@@ -73,6 +73,74 @@ async function writeChapters(bookDir, outlineJSON) {
 }
 
 /**
+ * Luồng công việc cho phép người dùng chọn một chương và yêu cầu AI viết lại.
+ */
+async function reworkChapter() {
+  console.log("\n[✏️ Chỉnh sửa/Viết lại một chương]");
+  
+  // 1. Chọn truyện
+  const bookSlugs = fs.readdirSync(BOOKS_DIR).filter(f => fs.statSync(path.join(BOOKS_DIR, f)).isDirectory());
+  if (bookSlugs.length === 0) {
+    console.log("Không có truyện nào để chỉnh sửa.");
+    return;
+  }
+  const { selectedBook } = await inquirer.prompt([{ type: 'list', name: 'selectedBook', message: 'Chọn truyện bạn muốn chỉnh sửa:', choices: bookSlugs }]);
+  const bookDir = path.join(BOOKS_DIR, selectedBook);
+  const outline = JSON.parse(fs.readFileSync(path.join(bookDir, 'outline.json'), 'utf-8'));
+
+  // 2. Chọn chương đã được viết
+  const writtenChapters = outline.chapters.filter(chap => {
+    const chapterFileName = `${String(chap.chapter).padStart(2, '0')}-${slugify(chap.title)}.md`;
+    return fs.existsSync(path.join(bookDir, chapterFileName));
+  }).map(chap => ({ name: `Chương ${chap.chapter}: ${chap.title}`, value: chap }));
+
+  if (writtenChapters.length === 0) {
+    console.log("Truyện này chưa có chương nào được viết. Hãy chạy worker trước.");
+    return;
+  }
+  const { selectedChapterInfo } = await inquirer.prompt([{ type: 'list', name: 'selectedChapterInfo', message: 'Chọn chương bạn muốn viết lại:', choices: writtenChapters }]);
+
+  // 3. Đọc nội dung gốc và yêu cầu chỉ dẫn
+  const originalFileName = `${String(selectedChapterInfo.chapter).padStart(2, '0')}-${slugify(selectedChapterInfo.title)}.md`;
+  const originalFilePath = path.join(bookDir, originalFileName);
+  const originalContent = fs.readFileSync(originalFilePath, 'utf-8');
+
+  console.log("\n--- NỘI DUNG CHƯƠNG HIỆN TẠI ---");
+  console.log(originalContent);
+  console.log("---------------------------------");
+
+  const { instructions } = await inquirer.prompt([{ type: 'input', name: 'instructions', message: "Hãy đưa ra chỉ dẫn để viết lại (ví dụ: 'thêm yếu tố hài hước', 'làm cho đoạn kết kịch tính hơn'):" }]);
+  if (!instructions) {
+    console.log("Đã hủy bỏ.");
+    return;
+  }
+
+  // 4. Gọi AI và hiển thị kết quả
+  console.log("\nĐang yêu cầu AI viết lại chương...");
+  const reworkPrompt = prompts.reworkChapterContent(selectedChapterInfo.title, originalContent, instructions);
+  const rawReworkedContent = await generateText(reworkPrompt);
+  const reworkedContent = cleanChapterContent(rawReworkedContent);
+
+  console.log("\n--- PHIÊN BẢN ĐÃ VIẾT LẠI ---");
+  console.log(reworkedContent);
+  console.log("-------------------------------");
+
+  // 5. Hỏi để lưu lại
+  const { shouldSave } = await inquirer.prompt([{ type: 'confirm', name: 'shouldSave', message: 'Bạn có muốn lưu phiên bản mới này không? (Nó sẽ được lưu thành một file riêng, không ghi đè file cũ)', default: true }]);
+
+  if (shouldSave) {
+    const timestamp = new Date().getTime();
+    const newFileName = originalFileName.replace('.md', `_v${timestamp}.md`);
+    const newFilePath = path.join(bookDir, newFileName);
+    fs.writeFileSync(newFilePath, `# Chương ${selectedChapterInfo.chapter}: ${selectedChapterInfo.title} (v${timestamp})\n\n${reworkedContent}`);
+    console.log(`Đã lưu phiên bản mới thành công tại: ${newFilePath}`);
+    console.log("Bạn có thể xóa file cũ và đổi tên file mới nếu muốn sử dụng nó làm phiên bản chính.");
+  } else {
+    console.log("Đã hủy lưu.");
+  }
+}
+
+/**
  * TÁI SỬ DỤNG: Hàm tạo, hiển thị và yêu cầu người dùng xác nhận dàn ý.
  * @param {string} title - Tựa đề sách.
  * @param {string} genre - Thể loại sách.
@@ -314,6 +382,7 @@ async function main() {
         choices: [
           { name: "Tiếp tục viết một truyện dang dở", value: "continue" },
           { name: "Tạo một tiểu thuyết mới", value: "new" },
+          { name: '✏️  Chỉnh sửa/Viết lại một chương', value: 'rework' }, 
           new inquirer.Separator(),
           { name: "Thoát", value: "exit" },
         ],
@@ -333,6 +402,8 @@ async function main() {
       await continueNovel(selectedBook);
     } else if (choice === "new") {
       await startNewNovel();
+    } else if (choice === 'rework') {
+      await reworkChapter();
     } else {
       console.log("Tạm biệt!");
       return;

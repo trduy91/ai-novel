@@ -23,16 +23,43 @@ const prompts = {
     Chỉ trả về đối tượng JSON, không có bất kỳ văn bản nào khác bao quanh.
   `,
 
-  createChapterContent: (bookTitle, genre, chapterTitle, chapterSummary, previousChapterSummary = null) => `
+  createChapterContent: (
+    bookTitle,
+    genre,
+    chapterTitle,
+    chapterSummary,
+    previousChapterSummary = null
+  ) => `
     Bạn là một nhà văn tài năng. Hãy viết nội dung chi tiết cho chương có tựa đề "${chapterTitle}" của cuốn tiểu thuyết "${bookTitle}" thuộc thể loại "${genre}".
     Tóm tắt nội dung chính của chương này là: "${chapterSummary}".
-    ${previousChapterSummary ? `Để có sự liền mạch, đây là tóm tắt của chương trước: "${previousChapterSummary}"` : ''}
+    ${
+      previousChapterSummary
+        ? `Để có sự liền mạch, đây là tóm tắt của chương trước: "${previousChapterSummary}"`
+        : ""
+    }
     YÊU CẦU QUAN TRỌNG VỀ ĐỊNH DẠNG:
     1.  **KHÔNG** viết bất kỳ lời dẫn, lời chào, hay câu bình luận nào. Ví dụ: không viết "Đây là chương bạn yêu cầu:" hay "Hy vọng bạn thích chương này.".
     2.  **BẮT ĐẦU NGAY LẬP TỨC** bằng nội dung của chương truyện. Dòng đầu tiên của câu trả lời phải là dòng đầu tiên của chương.
     3.  Viết với giọng văn lôi cuốn, tập trung vào việc phát triển nhân vật, xây dựng không khí và thúc đẩy cốt truyện.
     4.  Hãy viết với giọng văn lôi cuốn, tập trung vào việc phát triển nhân vật, xây dựng không khí và thúc đẩy cốt truyện. Độ dài khoảng 2000-3000 từ.
-  `
+  `,
+  reworkChapterContent: (chapterTitle, originalContent, instructions) => `
+  Bạn là một biên tập viên văn học tài năng. Nhiệm vụ của bạn là đọc và viết lại một chương truyện đã có dựa trên những chỉ dẫn cụ thể.
+  
+  Tựa đề chương: "${chapterTitle}"
+  
+  Nội dung chương gốc cần viết lại:
+  ---
+  ${originalContent}
+  ---
+  
+  Chỉ dẫn của tác giả để viết lại chương này: "${instructions}"
+  
+  YÊU CẦU:
+  1.  Hãy viết lại toàn bộ chương, lồng ghép một cách tự nhiên các yêu cầu trong chỉ dẫn. Đừng chỉ thêm thắt một vài câu.
+  2.  Giữ lại những yếu tố tốt của chương gốc nếu không có chỉ dẫn nào yêu cầu thay đổi chúng.
+  3.  **KHÔNG** viết bất kỳ lời dẫn hay bình luận nào. Bắt đầu ngay lập tức bằng nội dung của chương đã được viết lại.
+  `,
 };
 
 module.exports = prompts;
