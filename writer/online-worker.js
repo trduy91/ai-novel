@@ -3,7 +3,7 @@
 // --- PHẦN 1: IMPORT CÁC THƯ VIỆN CẦN THIẾT ---
 const express = require('express');
 const admin = require('firebase-admin');
-const { FIREBASE_SERVICE_ACCOUNT } = require('./config.js');
+const { FIREBASE_SERVICE_ACCOUNT, CHECK_INTERVAL_MINUTES } = require('./config.js');
 const { generateText } = require('./ai-provider.js');
 const { claimChapterTask } = require('./firestore-state.js');
 const prompts = require('./prompts.js');
@@ -26,7 +26,6 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 // Các hằng số điều khiển hoạt động của worker
-const CHECK_INTERVAL_MINUTES = 5; // Thời gian chờ giữa các lần quét
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 

@@ -10,6 +10,11 @@ if (!GEMINI_API_KEY) {
   console.warn("⚠️  Cảnh báo: Không tìm thấy GEMINI_API_KEY trong file .env. Các chức năng liên quan đến AI có thể sẽ lỗi.");
 }
 
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+if (!GROQ_API_KEY) {
+  console.warn("⚠️  Cảnh báo: Không tìm thấy GROQ_API_KEY trong file .env. Các chức năng liên quan đến AI có thể sẽ lỗi.");
+}
+
 // --- Cấu hình cho Firebase (LOGIC HYBRID) ---
 let FIREBASE_SERVICE_ACCOUNT;
 
@@ -36,6 +41,7 @@ else {
 
 module.exports = {
   GEMINI_API_KEY,
+  GROQ_API_KEY,
   FIREBASE_SERVICE_ACCOUNT,
   MAX_CHAPTERS_PER_DAY,
   CHECK_INTERVAL_MINUTES

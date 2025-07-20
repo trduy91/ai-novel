@@ -1,6 +1,7 @@
 // writer/ai-provider.js (Quản lý chuỗi fallback nhiều cấp)
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Groq = require('groq-sdk');
+const { GEMINI_API_KEY, GROQ_API_KEY } = require('./config');
 
 require('dotenv').config({ path: '../.env' });
 
@@ -28,8 +29,6 @@ const AI_CANDIDATES = [
 ];
 
 // --- KHỞI TẠO CÁC CLIENT CỦA NHÀ CUNG CẤP ---
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 let geminiClient;
 if (GEMINI_API_KEY) {
