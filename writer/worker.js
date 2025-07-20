@@ -6,7 +6,7 @@ const prompts = require("./prompts.js");
 const { claimChapterTask } = require("./firestore-state.js");
 const { BOOKS_DIR, slugify, formatWorldBibleForPrompt } = require("../helper.js");
 const { CHECK_INTERVAL_MINUTES } = require("./config.js");
-const { autoUpdateWorldBible } = require("./bible-manager.js");
+const { updateWorldBibleFromLocal } = require("./bible-manager.js");
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -117,7 +117,7 @@ async function startOfflineWorker() {
       console.log(
         `✅ (Offline) Đã viết và lưu thành công Chương ${chapterInfo.chapter} vào file.`
       );
-      autoUpdateWorldBible(bookSlug); 
+      updateWorldBibleFromLocal(bookSlug); 
       await sleep(2000);
     } catch (error) {
       console.error("\n❌ Gặp lỗi trong worker offline.", error);
