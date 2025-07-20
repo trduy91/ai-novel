@@ -50,6 +50,8 @@ async function findAndClaimNextChapterToDo_Online() {
         const writtenChapterNumbers = new Set(writtenChaptersSnapshot.docs.map(doc => parseInt(doc.id, 10)));
         
         for (const chapterInfo of bookData.chaptersOutline) {
+          if (!chapterInfo || typeof chapterInfo.chapter !== 'number') continue;
+
             if (!writtenChapterNumbers.has(chapterInfo.chapter)) {
                 // Đã tìm thấy một chương còn thiếu (ứng cử viên).
                 // Thử đòi quyền ngay lập tức.
@@ -58,9 +60,16 @@ async function findAndClaimNextChapterToDo_Online() {
                 if (wasClaimed) {
                     // Đòi quyền THÀNH CÔNG! Đây chính là công việc của chúng ta.
                     console.log(`[${bookSlug}] Found a missing chapter AND successfully claimed the task.`);
-                    const previousChapterSummary = chapterInfo.chapter > 1 
-                        ? bookData.chaptersOutline[chapterInfo.chapter - 2].summary 
-                        : null;
+                    let previousChapterSummary = null;
+                    const prevChapterIndex = chapterInfo.chapter - 2;
+
+                    // Chỉ lấy tóm tắt nếu:
+                    // 1. Đây không phải là chương đầu tiên.
+                    // 2. Chỉ số của chương trước đó hợp lệ (lớn hơn hoặc bằng 0).
+                    // 3. Phần tử chương trước đó trong dàn ý thực sự tồn tại.
+                    if (chapterInfo.chapter > 1 && prevChapterIndex >= 0 && bookData.chaptersOutline[prevChapterIndex]) {
+                        previousChapterSummary = bookData.chaptersOutline[prevChapterIndex].summary;
+                    }
                     
                     // Trả về task đã được "khóa"
                     return {
