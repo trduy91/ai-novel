@@ -7,7 +7,8 @@
     "start": "node worker.js",
     "start:online": "node online-worker.js",
     "sync": "node sync.js",
-    "sync:down": "node sync-down.js"
+    "sync:down": "node sync-down.js",
+    "cli": "node main.js"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,7 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "firebase-admin": "^13.4.0",
+    "groq-sdk": "^0.27.0",
     "inquirer": "^8.2.4"
   }
 }

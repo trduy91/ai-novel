@@ -3,14 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const admin = require("firebase-admin");
 const { BOOKS_DIR, slugify } = require("../helper.js"); // Dùng helper chung
-const { FIREBASE_SERVICE_ACCOUNT } = require('./config.js');
+const { FIREBASE_SERVICE_ACCOUNT } = require("./config.js");
 
 if (!FIREBASE_SERVICE_ACCOUNT) {
   console.log("Dừng quá trình đồng bộ do thiếu cấu hình Firebase.");
   process.exit(1);
 }
 admin.initializeApp({
-  credential: admin.credential.cert(FIREBASE_SERVICE_ACCOUNT)
+  credential: admin.credential.cert(FIREBASE_SERVICE_ACCOUNT),
 });
 const db = admin.firestore();
 console.log("Firebase Admin initialized.");
@@ -31,6 +31,12 @@ async function syncBooksToFirebase() {
     const bookDir = path.join(BOOKS_DIR, slug);
     const outlinePath = path.join(bookDir, "outline.json");
 
+    const worldFilePath = path.join(bookDir, "world.json");
+    let worldBibleData = null;
+    if (fs.existsSync(worldFilePath)) {
+      worldBibleData = fs.readFileSync(worldFilePath, "utf-8");
+    }
+
     if (!fs.existsSync(outlinePath)) continue;
 
     const outline = JSON.parse(fs.readFileSync(outlinePath, "utf-8"));
@@ -43,7 +49,8 @@ async function syncBooksToFirebase() {
         title: outline.title,
         genre: outline.genre,
         slug: slug,
-        chaptersOutline: outline.chapters 
+        chaptersOutline: outline.chapters,
+        worldBible: worldBibleData
       },
       { merge: true }
     ); // Dùng merge để không ghi đè dữ liệu không liên quan

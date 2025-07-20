@@ -3,10 +3,15 @@
 // --- PHẦN 1: IMPORT CÁC THƯ VIỆN CẦN THIẾT ---
 const express = require("express"); // Thêm express để tạo server giả
 const admin = require("firebase-admin");
-const { FIREBASE_SERVICE_ACCOUNT, CHECK_INTERVAL_MINUTES } = require("./config.js");
-const { generateText } = require("./gemini.js");
+const {
+  FIREBASE_SERVICE_ACCOUNT,
+  CHECK_INTERVAL_MINUTES,
+} = require("./config.js");
+const { generateText } = require("./ai-provider.js");
 const { claimChapterTask } = require("./firestore-state.js");
 const prompts = require("./prompts.js");
+const { formatWorldBibleForPrompt } = require("../helper.js");
+const { autoUpdateWorldBible_Online } = require("./bible-manager.js");
 
 // --- PHẦN 2: KHỞI TẠO CÁC DỊCH VỤ & HẰNG SỐ ---
 
@@ -107,6 +112,18 @@ async function startOnlineWorker() {
         chapterInfo,
         previousChapterSummary,
       } = taskInfo;
+      const bookDoc = await db.collection("books").doc(bookSlug).get();
+      let worldBibleContent = null;
+      if (bookDoc.exists && bookDoc.data().worldBible) {
+        try {
+          // worldBible được lưu dưới dạng chuỗi JSON trên Firestore
+          const worldBibleJSON = JSON.parse(bookDoc.data().worldBible);
+          worldBibleContent = formatWorldBibleForPrompt(worldBibleJSON);
+        } catch (e) {
+          // Fallback về nội dung thô
+          worldBibleContent = bookDoc.data().worldBible;
+        }
+      }
       console.log(
         `\n(Online) Task claimed! Writing [Chapter ${chapterInfo.chapter}: ${chapterInfo.title}] for "${bookTitle}"...`
       );
@@ -117,7 +134,8 @@ async function startOnlineWorker() {
         genre,
         chapterInfo.title,
         chapterInfo.summary,
-        previousChapterSummary
+        previousChapterSummary,
+        worldBibleContent
       );
       const chapterContent = await generateText(chapterPrompt);
 
@@ -135,6 +153,7 @@ async function startOnlineWorker() {
         content: chapterContent, // Lưu nội dung đã được làm sạch
       });
       console.log(`✅ (Online) Saved Chapter ${chapterId} to Firestore.`);
+      autoUpdateWorldBible_Online(bookSlug);
       await sleep(2000); // Nghỉ một chút giữa các lần làm việc
     } catch (error) {
       console.error("\n❌ An error occurred in the online worker loop.", error);

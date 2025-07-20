@@ -28,9 +28,22 @@ const prompts = {
     genre,
     chapterTitle,
     chapterSummary,
-    previousChapterSummary = null
+    previousChapterSummary = null,
+    worldBible = null
   ) => `
     Bạn là một nhà văn tài năng. Hãy viết nội dung chi tiết cho chương có tựa đề "${chapterTitle}" của cuốn tiểu thuyết "${bookTitle}" thuộc thể loại "${genre}".
+    
+    ${
+      worldBible
+        ? `
+      BỐI CẢNH VÀ NHÂN VẬT QUAN TRỌNG (GHI NHỚ VÀ TUÂN THỦ NGHIÊM NGẶT):
+      ---
+      ${worldBible}
+      ---
+      `
+        : ""
+    }
+
     Tóm tắt nội dung chính của chương này là: "${chapterSummary}".
     ${
       previousChapterSummary
@@ -43,6 +56,56 @@ const prompts = {
     3.  Viết với giọng văn lôi cuốn, tập trung vào việc phát triển nhân vật, xây dựng không khí và thúc đẩy cốt truyện.
     4.  Hãy viết với giọng văn lôi cuốn, tập trung vào việc phát triển nhân vật, xây dựng không khí và thúc đẩy cốt truyện. Độ dài khoảng 2000-3000 từ.
   `,
+
+  generateWorldBible: (
+    bookTitle,
+    outline,
+    existingChaptersContent,
+    existingWorldBible = null
+  ) => `
+Bạn là một người ghi chép và phân tích văn học cực kỳ tỉ mỉ. Nhiệm vụ của bạn là đọc toàn bộ tài liệu của một cuốn tiểu thuyết đang viết dở và tạo ra một file hồ sơ (World Bible) ở định dạng JSON.
+
+Tựa đề truyện: "${bookTitle}"
+
+Dàn ý tổng thể của truyện:
+---
+${outline}
+---
+
+Nội dung các chương đã được viết:
+---
+${existingChaptersContent}
+---
+
+${
+  existingWorldBible
+    ? `
+Hồ sơ World Bible hiện tại (để tham khảo và bổ sung):
+---
+${existingWorldBible}
+---
+`
+    : ""
+}
+
+YÊU CẦU:
+1.  Đọc và phân tích kỹ lưỡng tất cả các tài liệu trên.
+2.  Xác định tất cả các thực thể quan trọng bao gồm:
+    *   **Nhân vật (characters):** Tên, mô tả ngắn gọn về ngoại hình, tính cách, và vai trò của họ dựa trên những gì đã xuất hiện.
+    *   **Địa danh (places):** Tên các thành phố, làng mạc, khu rừng, tòa nhà... và mô tả chúng.
+    *   **Hệ thống/Luật lệ (lore):** Các sự kiện lịch sử, các khái niệm ma thuật, các vật phẩm đặc biệt, hoặc các quy tắc của thế giới đã được đề cập.
+3.  Tổng hợp tất cả thông tin này vào một đối tượng JSON duy nhất.
+4.  Sử dụng cấu trúc sau, ĐẶC BIỆT LƯU Ý: phải tuân thủ nghiêm ngặt định dạng "key": "value".:
+    {
+      "characters": [ { "name": "...", "description": "..." } ],
+      "places": [ { "name": "...", "description": "..." } ],
+      "lore": [
+         { "item": "Vật phẩm 1", "description": "Mô tả chi tiết về vật phẩm 1" },
+         { "concept": "Khái niệm 1", "description": "Mô tả chi tiết về khái niệm 1" }
+       ]
+    }
+5.  **CHỈ TRẢ VỀ ĐỐI TƯỢNG JSON.** Không có bất kỳ lời dẫn, giải thích hay markdown nào khác bao quanh nó.
+`,
   reworkChapterContent: (chapterTitle, originalContent, instructions) => `
   Bạn là một biên tập viên văn học tài năng. Nhiệm vụ của bạn là đọc và viết lại một chương truyện đã có dựa trên những chỉ dẫn cụ thể.
   
