@@ -27,8 +27,11 @@ const prompts = {
     Bạn là một nhà văn tài năng. Hãy viết nội dung chi tiết cho chương có tựa đề "${chapterTitle}" của cuốn tiểu thuyết "${bookTitle}" thuộc thể loại "${genre}".
     Tóm tắt nội dung chính của chương này là: "${chapterSummary}".
     ${previousChapterSummary ? `Để có sự liền mạch, đây là tóm tắt của chương trước: "${previousChapterSummary}"` : ''}
-
-    Hãy viết với giọng văn lôi cuốn, tập trung vào việc phát triển nhân vật, xây dựng không khí và thúc đẩy cốt truyện. Độ dài khoảng 2000-3000 từ.
+    YÊU CẦU QUAN TRỌNG VỀ ĐỊNH DẠNG:
+    1.  **KHÔNG** viết bất kỳ lời dẫn, lời chào, hay câu bình luận nào. Ví dụ: không viết "Đây là chương bạn yêu cầu:" hay "Hy vọng bạn thích chương này.".
+    2.  **BẮT ĐẦU NGAY LẬP TỨC** bằng nội dung của chương truyện. Dòng đầu tiên của câu trả lời phải là dòng đầu tiên của chương.
+    3.  Viết với giọng văn lôi cuốn, tập trung vào việc phát triển nhân vật, xây dựng không khí và thúc đẩy cốt truyện.
+    4.  Hãy viết với giọng văn lôi cuốn, tập trung vào việc phát triển nhân vật, xây dựng không khí và thúc đẩy cốt truyện. Độ dài khoảng 2000-3000 từ.
   `
 };
 

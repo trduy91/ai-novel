@@ -3,6 +3,8 @@
 // --- Cấu hình cho Gemini ---
 // Ở local, chúng ta sẽ dùng dotenv để tiện lợi
 require('dotenv').config({ path: '../.env' }); // Chỉ định đường dẫn tới file .env ở gốc
+const MAX_CHAPTERS_PER_DAY = process.env.MAX_CHAPTERS_PER_DAY || 30
+const CHECK_INTERVAL_MINUTES = process.env.CHECK_INTERVAL_MINUTES || 10;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 if (!GEMINI_API_KEY) {
   console.warn("⚠️  Cảnh báo: Không tìm thấy GEMINI_API_KEY trong file .env. Các chức năng liên quan đến AI có thể sẽ lỗi.");
@@ -34,5 +36,7 @@ else {
 
 module.exports = {
   GEMINI_API_KEY,
-  FIREBASE_SERVICE_ACCOUNT
+  FIREBASE_SERVICE_ACCOUNT,
+  MAX_CHAPTERS_PER_DAY,
+  CHECK_INTERVAL_MINUTES
 };

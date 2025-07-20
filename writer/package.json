@@ -4,7 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node worker.js"
+    "start": "node worker.js",
+    "start:online": "node online-worker.js",
+    "sync": "node sync.js",
+    "sync:down": "node sync-down.js"
   },
   "keywords": [],
   "author": "",

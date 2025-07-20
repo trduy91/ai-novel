@@ -7,7 +7,7 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // Cấu hình model để đảm bảo output là text
 const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash", // Dùng model "flash" để nhanh và tiết kiệm hơn
+  model: "gemini-1.5-flash", // Dùng model "flash" để nhanh và tiết kiệm hơn
   generationConfig: { responseMimeType: "text/plain" }
 });
 

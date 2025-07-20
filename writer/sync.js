@@ -43,6 +43,7 @@ async function syncBooksToFirebase() {
         title: outline.title,
         genre: outline.genre,
         slug: slug,
+        chaptersOutline: outline.chapters 
       },
       { merge: true }
     ); // Dùng merge để không ghi đè dữ liệu không liên quan
